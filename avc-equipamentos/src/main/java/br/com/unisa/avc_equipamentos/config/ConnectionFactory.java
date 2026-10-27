@@ -1,4 +1,4 @@
-package com.unisa.avc_equipamentos.config;
+package br.com.unisa.avc_equipamentos;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
