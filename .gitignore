@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Arquivos locais e compilação
+*.class
+.env
+*.local.properties
