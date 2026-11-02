@@ -178,6 +178,7 @@ O resultado da execução deve ser verificado no terminal. A compilação bem-su
 src/
 ├── main/
 │   ├── java/br/com/unisa/avc_equipamentos/
+│   │   ├── algoritmos/
 │   │   ├── config/
 │   │   ├── controller/
 │   │   ├── dto/
@@ -192,3 +193,40 @@ src/
 ```
 
 **Observação:** a documentação deverá ser atualizada conforme as demais funcionalidades do projeto forem integradas pela equipe.
+
+## 9. Módulo de Algoritmos
+
+O módulo de algoritmos foi desenvolvido por Fernando Oliveira e está localizado em `src/main/java/br/com/unisa/avc_equipamentos/algoritmos/ModuloAlgoritmos.java`.
+
+Ele realiza operações sobre uma coleção de equipamentos armazenada em memória, sem utilizar consultas ao banco de dados ou endpoints REST.
+
+### Busca linear — T-17
+
+O método `buscaLinear(String nome)` percorre a lista de equipamentos, comparando seus nomes até encontrar o equipamento desejado.
+
+- Complexidade de tempo: O(n) no pior caso.
+- Melhor caso: O(1), quando o equipamento é o primeiro da lista.
+- Complexidade de espaço adicional: O(1).
+
+### Busca binária — T-18
+
+O método `buscaBinaria(String nome)` utiliza a busca binária para localizar um equipamento pelo nome. Antes da busca, a lista é ordenada utilizando o InsertionSort.
+
+- Complexidade da busca: O(log n).
+- Complexidade da ordenação prévia: O(n²) no pior caso.
+- Complexidade total da chamada: O(n²) no pior caso, considerando a ordenação.
+- Complexidade de espaço adicional: O(1).
+
+### InsertionSort — T-19
+
+O método `insertionSort()` ordena manualmente os equipamentos por nome, utilizando comparações entre os elementos da lista.
+
+- Melhor caso: O(n), quando a lista já está ordenada.
+- Pior caso: O(n²), quando são necessários muitos deslocamentos.
+- Complexidade de espaço adicional: O(1).
+
+### Observações
+
+Os algoritmos utilizam a classe `Equipamento` já existente no projeto e comparam os nomes sem diferenciar letras maiúsculas e minúsculas. A implementação pressupõe nomes não nulos para a ordenação e a busca binária.
+
+A compilação do módulo foi concluída com sucesso usando `mvn compile`. Os testes específicos dos algoritmos ainda precisam ser validados. A execução de `mvn test` apresentou falha no teste de conexão com o PostgreSQL devido à ausência de senha no ambiente de execução.
