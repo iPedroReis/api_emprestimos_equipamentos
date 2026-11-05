@@ -31,6 +31,32 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorDTO> tratarArgumentoInvalido(
+            IllegalArgumentException ex) {
+
+        ApiErrorDTO erro = new ApiErrorDTO(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiErrorDTO> tratarEstadoInvalido(
+            IllegalStateException ex) {
+
+        ApiErrorDTO erro = new ApiErrorDTO(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(erro);
+    }
+
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<ApiErrorDTO> tratarErroBanco(SQLException ex) {
         ApiErrorDTO erro = new ApiErrorDTO(
