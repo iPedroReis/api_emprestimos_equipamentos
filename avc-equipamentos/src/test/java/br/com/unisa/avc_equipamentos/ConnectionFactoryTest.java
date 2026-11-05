@@ -1,5 +1,6 @@
-package br.com.unisa.avc_equipamentos.config;
+package br.com.unisa.avc_equipamentos;
 
+import br.com.unisa.avc_equipamentos.config.ConnectionFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
