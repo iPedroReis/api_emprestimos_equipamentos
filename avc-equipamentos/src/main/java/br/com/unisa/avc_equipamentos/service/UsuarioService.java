@@ -23,6 +23,12 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> buscarPorId(Long id) throws SQLException {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(
+                    "O ID do usuário deve ser válido."
+            );
+        }
+
         return usuarioDAO.buscarPorId(id);
     }
 }
