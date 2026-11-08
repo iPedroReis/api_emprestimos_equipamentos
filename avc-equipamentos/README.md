@@ -125,6 +125,11 @@ classDiagram
     EmprestimoResponseDTO ..> Emprestimo : converte
     Emprestimo --> Usuario : referencia
     Emprestimo --> Equipamento : referencia
+    EquipamentoController --> EquipamentoService : utiliza
+
+EquipamentoService --> EquipamentoDAO : utiliza
+EquipamentoDAO --> ConnectionFactory : obtém conexão
+EquipamentoService ..> Equipamento : manipula
     UsuarioService --> UsuarioDAO : utiliza
 ```
 
@@ -194,7 +199,36 @@ src/
 
 **Observação:** a documentação deverá ser atualizada conforme as demais funcionalidades do projeto forem integradas pela equipe.
 
-## 9. Módulo de Algoritmos
+
+## 9. Endpoints de equipamentos
+
+| Método | Endpoint | Finalidade |
+|---|---|---|
+| GET | `/equipamentos` | Listar equipamentos |
+| GET | `/equipamentos/{id}` | Buscar equipamento por ID |
+| POST | `/equipamentos` | Cadastrar equipamento |
+| PUT | `/equipamentos/{id}` | Atualizar equipamento |
+| DELETE | `/equipamentos/{id}` | Excluir equipamento |
+
+### Exemplo de cadastro
+
+Requisição `POST /equipamentos`:
+
+```json
+{
+  "nome": "Notebook Dell",
+  "patrimonio": "PAT-001",
+  "disponivel": true
+}
+```
+
+Equipamentos novos são cadastrados como disponíveis. O nome e o patrimônio são obrigatórios.
+
+### Regra de exclusão
+
+Não é permitido excluir um equipamento que possua histórico de empréstimos. Quando o equipamento não é encontrado, a API retorna `404 Not Found`.
+
+## 10. Módulo de Algoritmos
 
 O módulo de algoritmos está localizado em `src/main/java/br/com/unisa/avc_equipamentos/algoritmos/ModuloAlgoritmos.java`.
 
