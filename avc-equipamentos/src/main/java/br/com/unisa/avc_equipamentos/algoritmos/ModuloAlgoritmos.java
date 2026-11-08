@@ -2,28 +2,45 @@
 package br.com.unisa.avc_equipamentos.algoritmos;
 
 import br.com.unisa.avc_equipamentos.model.Equipamento;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ModuloAlgoritmos {
 
     // T-16: Coleção de equipamentos em memória
-    private List<Equipamento> equipamentos;
+    private final List<Equipamento> equipamentos;
 
-    // Construtor
     public ModuloAlgoritmos(List<Equipamento> equipamentos) {
+
+        if (equipamentos == null) {
+            throw new IllegalArgumentException(
+                    "A lista de equipamentos não pode ser nula."
+            );
+        }
+
         this.equipamentos = new ArrayList<>(equipamentos);
+
+        for (Equipamento equipamento : this.equipamentos) {
+
+            if (equipamento == null || equipamento.getId() == null) {
+                throw new IllegalArgumentException(
+                        "Todos os equipamentos devem possuir um ID válido."
+                );
+            }
+        }
     }
 
-    // T-17: Busca Linear
+    // T-17: Busca Linear por ID
     // Complexidade: O(n)
-    public Equipamento buscaLinear(String nome) {
+    public Equipamento buscaLinear(Long id) {
+
+        if (id == null) {
+            return null;
+        }
 
         for (Equipamento equipamento : equipamentos) {
 
-            if (equipamento.getNome() != null &&
-                equipamento.getNome().equalsIgnoreCase(nome)) {
-
+            if (equipamento.getId().equals(id)) {
                 return equipamento;
             }
         }
@@ -31,8 +48,9 @@ public class ModuloAlgoritmos {
         return null;
     }
 
-    // T-19: Ordenação InsertionSort por nome
-    // Complexidade: O(n²) no pior caso
+    // T-19: Ordenação Insertion Sort por ID
+    // Melhor caso: O(n)
+    // Pior caso: O(n²)
     public void insertionSort() {
 
         for (int i = 1; i < equipamentos.size(); i++) {
@@ -40,8 +58,9 @@ public class ModuloAlgoritmos {
             Equipamento atual = equipamentos.get(i);
             int j = i - 1;
 
-            while (j >= 0 &&
-                   compararNomes(equipamentos.get(j), atual) > 0) {
+            while (j >= 0
+                    && equipamentos.get(j).getId()
+                    .compareTo(atual.getId()) > 0) {
 
                 equipamentos.set(j + 1, equipamentos.get(j));
                 j--;
@@ -51,17 +70,16 @@ public class ModuloAlgoritmos {
         }
     }
 
-    // Método auxiliar para comparar nomes
-    private int compararNomes(Equipamento a, Equipamento b) {
-        return a.getNome().compareToIgnoreCase(b.getNome());
-    }
-
-    // T-18: Busca Binária
-    // Ordenação prévia: O(n²)
+    // T-18: Busca Binária por ID
+    // Ordenação prévia: O(n²) no pior caso
     // Busca: O(log n)
-    public Equipamento buscaBinaria(String nome) {
+    public Equipamento buscaBinaria(Long id) {
 
-        // Ordena antes de realizar a busca
+        if (id == null) {
+            return null;
+        }
+
+        // A coleção precisa estar ordenada pelo mesmo critério da busca.
         insertionSort();
 
         int inicio = 0;
@@ -73,8 +91,7 @@ public class ModuloAlgoritmos {
 
             Equipamento equipamento = equipamentos.get(meio);
 
-            int comparacao =
-                equipamento.getNome().compareToIgnoreCase(nome);
+            int comparacao = equipamento.getId().compareTo(id);
 
             if (comparacao == 0) {
                 return equipamento;
@@ -90,7 +107,7 @@ public class ModuloAlgoritmos {
         return null;
     }
 
-    // Retorna a lista de equipamentos
+    // Retorna uma cópia da lista de equipamentos
     public List<Equipamento> getEquipamentos() {
         return new ArrayList<>(equipamentos);
     }

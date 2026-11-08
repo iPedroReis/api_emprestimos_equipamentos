@@ -19,14 +19,14 @@ A aplicação utiliza uma arquitetura em camadas, separando as responsabilidades
 |---|---|
 | `controller` | Receber requisições HTTP e retornar respostas da API. |
 | `service` | Aplicar validações e regras de negócio. |
-| `repository` | Executar consultas e operações SQL no banco de dados. |
+| `repository` / `DAO` | Executar consultas e operações SQL no banco de dados. |
 | `model` | Representar as entidades do domínio. |
 | `dto` | Transportar os dados de entrada e saída da API. |
 | `config` | Centralizar configurações de infraestrutura, incluindo a conexão com o banco. |
 
 ### Fluxo de uma requisição
 
-Uma requisição HTTP chega ao controller, que utiliza o service para executar a operação. O service acessa o repository, responsável pela persistência no banco de dados. O resultado retorna pelas camadas até formar a resposta HTTP.
+Uma requisição HTTP chega ao controller, que utiliza o service para executar a operação. O service acessa a camada de persistência, responsável pelas operações no banco de dados. O resultado retorna pelas camadas até formar a resposta HTTP.
 
 ```mermaid
 flowchart TD
@@ -44,7 +44,7 @@ flowchart TD
 
 ## 3. Diagrama de classes UML
 
-O diagrama abaixo representa as principais classes identificadas no código da aplicação.
+O diagrama abaixo representa as principais classes identificadas na implementação documentada do sistema.
 
 ```mermaid
 classDiagram
@@ -196,37 +196,75 @@ src/
 
 ## 9. Módulo de Algoritmos
 
-O módulo de algoritmos foi desenvolvido por Fernando Oliveira e está localizado em `src/main/java/br/com/unisa/avc_equipamentos/algoritmos/ModuloAlgoritmos.java`.
+O módulo de algoritmos está localizado em `src/main/java/br/com/unisa/avc_equipamentos/algoritmos/ModuloAlgoritmos.java`.
 
-Ele realiza operações sobre uma coleção de equipamentos armazenada em memória, sem utilizar consultas ao banco de dados ou endpoints REST.
+A implementação original foi desenvolvida por Fernando Oliveira. Durante a revisão técnica, foram realizados ajustes para adequar os critérios de busca e ordenação ao requisito de identificação dos equipamentos por ID.
+
+O módulo trabalha com uma coleção de equipamentos armazenada em memória, recebida por meio do construtor da classe. A coleção é copiada para uma lista interna, sem realizar consultas SQL diretamente ou expor endpoints REST.
 
 ### Busca linear — T-17
 
-O método `buscaLinear(String nome)` percorre a lista de equipamentos, comparando seus nomes até encontrar o equipamento desejado.
+O método `buscaLinear(Long id)` percorre sequencialmente a coleção até encontrar um equipamento com o ID informado.
 
 - Complexidade de tempo: O(n) no pior caso.
-- Melhor caso: O(1), quando o equipamento é o primeiro da lista.
+- Melhor caso: O(1), quando o equipamento está na primeira posição.
 - Complexidade de espaço adicional: O(1).
 
 ### Busca binária — T-18
 
-O método `buscaBinaria(String nome)` utiliza a busca binária para localizar um equipamento pelo nome. Antes da busca, a lista é ordenada utilizando o InsertionSort.
+O método `buscaBinaria(Long id)` utiliza a busca binária para localizar um equipamento pelo ID. Antes da pesquisa, a coleção é ordenada em ordem crescente de ID utilizando o Insertion Sort.
 
 - Complexidade da busca: O(log n).
 - Complexidade da ordenação prévia: O(n²) no pior caso.
-- Complexidade total da chamada: O(n²) no pior caso, considerando a ordenação.
+- Complexidade total da chamada: O(n²) no pior caso, considerando a ordenação prévia.
 - Complexidade de espaço adicional: O(1).
 
-### InsertionSort — T-19
+A ordenação prévia é necessária porque a busca binária depende de uma coleção ordenada pelo mesmo critério utilizado na comparação.
 
-O método `insertionSort()` ordena manualmente os equipamentos por nome, utilizando comparações entre os elementos da lista.
+### Insertion Sort — T-19
 
-- Melhor caso: O(n), quando a lista já está ordenada.
+O método `insertionSort()` ordena os equipamentos em ordem crescente de ID, inserindo cada elemento na posição correta em relação aos elementos anteriores.
+
+- Melhor caso: O(n), quando a coleção já está ordenada.
 - Pior caso: O(n²), quando são necessários muitos deslocamentos.
 - Complexidade de espaço adicional: O(1).
 
 ### Observações
 
-Os algoritmos utilizam a classe `Equipamento` já existente no projeto e comparam os nomes sem diferenciar letras maiúsculas e minúsculas. A implementação pressupõe nomes não nulos para a ordenação e a busca binária.
+Os algoritmos utilizam o atributo `id` da classe `Equipamento`, do tipo `Long`, como critério de comparação.
 
-A compilação do módulo foi concluída com sucesso usando `mvn compile`. Os testes específicos dos algoritmos ainda precisam ser validados. A execução de `mvn test` apresentou falha no teste de conexão com o PostgreSQL devido à ausência de senha no ambiente de execução.
+O construtor recebe uma lista não nula e valida se todos os equipamentos possuem identificadores válidos. A busca retorna `null` quando o ID informado não é encontrado ou é nulo.
+
+A ordenação modifica a lista interna do módulo, enquanto o método `getEquipamentos()` retorna uma cópia da coleção.
+
+A compilação e a demonstração do módulo foram executadas com sucesso. Os testes JUnit específicos dos algoritmos permanecem pendentes de execução e validação.
+
+### Demonstração reproduzível
+
+A classe `DemonstracaoAlgoritmos` cria uma coleção fixa de cinco equipamentos em memória, com IDs inicialmente fora de ordem.
+
+Os dados são gerados localmente no código, sem consulta ao PostgreSQL/Supabase e sem requisições HTTP ou utilização do Postman.
+
+Para executar a demonstração, na pasta `avc-equipamentos`, execute:
+
+```bash
+mvn -DskipTests compile
+java -cp target/classes br.com.unisa.avc_equipamentos.algoritmos.DemonstracaoAlgoritmos
+```
+
+**Saída esperada:**
+
+```text
+Busca linear pelo ID 3:
+Notebook
+
+Busca binária pelo ID 4:
+Projetor
+
+Equipamentos ordenados por ID:
+1 - Monitor
+2 - Mouse
+3 - Notebook
+4 - Projetor
+5 - Teclado
+```
