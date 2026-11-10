@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 @Repository
 public class EmprestimoDAO {
@@ -104,9 +103,8 @@ public class EmprestimoDAO {
                 emprestimo.setUsuario(usuario);
                 emprestimo.setEquipamento(equipamento);
 
-                try (PreparedStatement comando = conexao.prepareStatement(
-                        inserirEmprestimo,
-                        Statement.RETURN_GENERATED_KEYS)) {
+                try (PreparedStatement comando =
+                    conexao.prepareStatement(inserirEmprestimo)) {
 
                     comando.setLong(1, usuarioId);
                     comando.setLong(2, equipamentoId);
