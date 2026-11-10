@@ -1,6 +1,6 @@
 # Sistema de Empréstimo de Equipamentos
 
-Projeto acadêmico desenvolvido para a disciplina de Engenharia de Software da UNISA. O sistema tem como objetivo gerenciar empréstimos e devoluções de equipamentos, relacionando usuários, equipamentos e registros de empréstimo.
+Projeto acadêmico desenvolvido para a disciplina de Técnicas de Programação da UNISA. O sistema tem como objetivo gerenciar empréstimos e devoluções de equipamentos, relacionando usuários, equipamentos e registros de empréstimo.
 
 ## 1. Tecnologias utilizadas
 
@@ -23,6 +23,7 @@ A aplicação utiliza uma arquitetura em camadas, separando as responsabilidades
 | `model` | Representar as entidades do domínio. |
 | `dto` | Transportar os dados de entrada e saída da API. |
 | `config` | Centralizar configurações de infraestrutura, incluindo a conexão com o banco. |
+| `exception` | Definir exceções específicas e centralizar o tratamento de erros da API. |
 
 ### Fluxo de uma requisição
 
@@ -44,93 +45,174 @@ flowchart TD
 
 ## 3. Diagrama de classes UML
 
-O diagrama abaixo representa as principais classes identificadas na implementação documentada do sistema.
+O diagrama abaixo contempla as classes identificadas no código, seus principais atributos, métodos e dependências:
 
 ```mermaid
 classDiagram
-    class AvcEquipamentosApplication {
-        +main(String[] args)
-    }
+direction TB
 
-    class ConnectionFactory {
-        -String url
-        -String usuario
-        -String senha
-        +getConnection() Connection
-    }
+class AvcEquipamentosApplication
 
-    class EmprestimoController {
-        -EmprestimoService emprestimoService
-        +registrarEmprestimo() ResponseEntity
-        +registrarDevolucao(Long id) ResponseEntity
-    }
+class ConnectionFactory {
+  -String url
+  -String usuario
+  -String senha
+  +getConnection() Connection
+}
 
-    class EmprestimoService {
-        -EmprestimoDAO emprestimoDAO
-        +registrarEmprestimo(Long usuarioId, Long equipamentoId) Emprestimo
-        +registrarDevolucao(Long emprestimoId) void
-    }
+class EmprestimoController {
+  -EmprestimoService emprestimoService
+  +registrarEmprestimo()
+  +registrarDevolucao()
+}
 
-    class EmprestimoDAO {
-        +registrarEmprestimo(Long usuarioId, Long equipamentoId) Emprestimo
-        +registrarDevolucao(Long emprestimoId) void
-    }
+class EmprestimoService {
+  -EmprestimoDAO emprestimoDAO
+  +registrarEmprestimo()
+  +registrarDevolucao(Long emprestimoId)
+}
 
-    class EmprestimoRequestDTO {
-        -Long usuarioId
-        -Long equipamentoId
-    }
+class EmprestimoDAO {
+  -ConnectionFactory fabricaConexao
+  +registrarEmprestimo()
+  +registrarDevolucao(Long emprestimoId)
+}
 
-    class EmprestimoResponseDTO {
-        -Long id
-        -Long usuarioId
-        -Long equipamentoId
-        -LocalDateTime dataRegistro
-        -LocalDateTime dataDevolucao
-        -String situacao
-    }
+class EquipamentoController {
+  -EquipamentoService equipamentoService
+  +listarTodos()
+  +buscarPorId(Long id)
+  +cadastrar()
+  +atualizar(Long id)
+  +excluir(Long id)
+}
 
-    class Emprestimo {
-        -Long id
-        -Usuario usuario
-        -Equipamento equipamento
-        -LocalDateTime dataRegistro
-        -LocalDateTime dataDevolucao
-        -String situacao
-    }
+class EquipamentoService {
+  -EquipamentoDAO equipamentoDAO
+  +listarTodos()
+  +buscarPorId(Long id)
+  +cadastrar(Equipamento equipamento)
+  +atualizar(Long id, Equipamento equipamento)
+  +excluir(Long id)
+}
 
-    class Usuario {
-        -Long id
-        -String nome
-        -String matricula
-    }
+class EquipamentoDAO {
+  -ConnectionFactory fabricaConexao
+  +listarTodos()
+  +buscarPorId(Long id)
+  +criar(Equipamento equipamento)
+  +atualizar(Long id, Equipamento equipamento)
+  +possuiHistoricoEmprestimo(Long id)
+  +excluir(Long id)
+}
 
-    class Equipamento {
-        -Long id
-        -String nome
-        -String patrimonio
-        -boolean disponivel
-    }
+class UsuarioController {
+  -UsuarioService usuarioService
+  +listarTodos()
+  +buscarPorId(Long id)
+}
 
-    class UsuarioDAO
-    class UsuarioService
+class UsuarioService {
+  -UsuarioDAO usuarioDAO
+  +listarTodos()
+  +buscarPorId(Long id)
+}
 
-    AvcEquipamentosApplication ..> EmprestimoController : inicia aplicação
-    EmprestimoController --> EmprestimoService : utiliza
-    EmprestimoController ..> EmprestimoRequestDTO : recebe
-    EmprestimoController ..> EmprestimoResponseDTO : retorna
-    EmprestimoService --> EmprestimoDAO : utiliza
-    EmprestimoDAO --> ConnectionFactory : obtém conexão
-    EmprestimoService ..> Emprestimo : manipula
-    EmprestimoResponseDTO ..> Emprestimo : converte
-    Emprestimo --> Usuario : referencia
-    Emprestimo --> Equipamento : referencia
-    EquipamentoController --> EquipamentoService : utiliza
+class UsuarioDAO {
+  -ConnectionFactory fabricaConexao
+  +listarTodos()
+  +buscarPorId(Long id)
+}
 
-EquipamentoService --> EquipamentoDAO : utiliza
-EquipamentoDAO --> ConnectionFactory : obtém conexão
-EquipamentoService ..> Equipamento : manipula
-    UsuarioService --> UsuarioDAO : utiliza
+class Emprestimo {
+  -Long id
+  -Usuario usuario
+  -Equipamento equipamento
+  -LocalDateTime dataRegistro
+  -LocalDateTime dataDevolucao
+  -String situacao
+}
+
+class Equipamento {
+  -Long id
+  -String nome
+  -String patrimonio
+  -boolean disponivel
+}
+
+class Usuario {
+  -Long id
+  -String nome
+  -String matricula
+}
+
+class EmprestimoRequestDTO {
+  -Long usuarioId
+  -Long equipamentoId
+}
+
+class EmprestimoResponseDTO {
+  -Long id
+  -Long usuarioId
+  -Long equipamentoId
+  -LocalDateTime dataRegistro
+  -LocalDateTime dataDevolucao
+  -String situacao
+}
+
+class UsuarioResponseDTO {
+  -Long id
+  -String nome
+  -String matricula
+}
+
+class GlobalExceptionHandler {
+  +tratarRecursoNaoEncontrado()
+  +tratarRegraNegocio()
+  +tratarArgumentoInvalido()
+  +tratarEstadoInvalido()
+  +tratarErroBanco()
+  +tratarErroGenerico()
+}
+
+class ApiErrorDTO {
+  -LocalDateTime dataHora
+  -int status
+  -String erro
+  -String mensagem
+}
+
+class RecursoNaoEncontradoException
+class RegraNegocioException
+
+EmprestimoController --> EmprestimoService
+EmprestimoService --> EmprestimoDAO
+EmprestimoDAO --> ConnectionFactory
+
+EquipamentoController --> EquipamentoService
+EquipamentoService --> EquipamentoDAO
+EquipamentoDAO --> ConnectionFactory
+
+UsuarioController --> UsuarioService
+UsuarioService --> UsuarioDAO
+UsuarioDAO --> ConnectionFactory
+
+Emprestimo --> Usuario
+Emprestimo --> Equipamento
+
+EmprestimoController ..> EmprestimoRequestDTO
+EmprestimoController ..> EmprestimoResponseDTO
+UsuarioController ..> UsuarioResponseDTO
+
+GlobalExceptionHandler ..> ApiErrorDTO
+GlobalExceptionHandler ..> RecursoNaoEncontradoException
+GlobalExceptionHandler ..> RegraNegocioException
+
+EmprestimoService ..> Emprestimo
+EquipamentoService ..> Equipamento
+UsuarioService ..> Usuario
+
+GlobalExceptionHandler ..> SQLException
 ```
 
 ## 4. Persistência e transações
@@ -169,13 +251,18 @@ Essas variáveis devem ser configuradas no ambiente de execução. Credenciais r
 
 ## 7. Testes
 
-Os testes automatizados estão localizados em `src/test/java`. Para executar a suíte de testes, utilize o Maven na pasta que contém o arquivo `pom.xml`:
+Os testes automatizados estão localizados em `src/test/java`. Para executar a suíte completa, utilize o Maven na pasta que contém o arquivo `pom.xml`:
 
 ```bash
-mvn test
+mvn clean test
 ```
+### Resultado da execução
 
-O resultado da execução deve ser verificado no terminal. A compilação bem-sucedida, isoladamente, não comprova que todos os fluxos da API funcionam corretamente.
+Na validação integrada do projeto, foram executados 39 testes automatizados, distribuídos entre as classes de teste de conexão, aplicação, usuários, empréstimos, algoritmos e tratamento global de exceções.
+
+Resultado: 39 testes aprovados, sem falhas, erros ou testes ignorados (BUILD SUCCESS).
+
+A compilação bem-sucedida, isoladamente, não comprova o funcionamento dos fluxos da API. Por isso, a validação considera também a execução dos testes automatizados.
 
 ## 8. Organização do projeto
 
@@ -187,6 +274,7 @@ src/
 │   │   ├── config/
 │   │   ├── controller/
 │   │   ├── dto/
+│   │   ├── exception/
 │   │   ├── model/
 │   │   ├── repository/
 │   │   ├── service/
@@ -196,9 +284,6 @@ src/
 └── test/
     └── java/br/com/unisa/avc_equipamentos/
 ```
-
-**Observação:** a documentação deverá ser atualizada conforme as demais funcionalidades do projeto forem integradas pela equipe.
-
 
 ## 9. Endpoints de equipamentos
 
@@ -226,9 +311,33 @@ Equipamentos novos são cadastrados como disponíveis. O nome e o patrimônio s�
 
 ### Regra de exclusão
 
-Não é permitido excluir um equipamento que possua histórico de empréstimos. Quando o equipamento não é encontrado, a API retorna `404 Not Found`.
+Não é permitido excluir um equipamento que possua histórico de empréstimos. Nesse caso, a API retorna `409 Conflict`. Quando o equipamento não é encontrado, a API retorna `404 Not Found`.
 
-## 10. Módulo de Algoritmos
+## 10. Módulo de Usuários e Tratamento Global de Erros
+
+O módulo de usuários foi desenvolvido nas tarefas T-11 a T-14, sob responsabilidade de Beatriz Pereira.
+
+### Implementação
+
+- **Modelos e DTOs (T-11):** implementação do `UsuarioResponseDTO`, responsável por transportar os dados necessários dos usuários (`id`, `nome` e `matricula`), sem expor diretamente a entidade de domínio.
+- **Acesso a dados (T-12):** implementação do `UsuarioDAO`, utilizando JDBC e `PreparedStatement` para realizar consultas ao banco de dados, com gerenciamento adequado dos recursos.
+- **Serviço e endpoints REST (T-13):** implementação do `UsuarioController`, disponibilizando:
+  - `GET /usuarios`: lista os usuários cadastrados.
+  - `GET /usuarios/{id}`: consulta um usuário pelo identificador, retornando HTTP 404 quando não encontrado.
+- **Tratamento global de exceções (T-14):** implementação do `GlobalExceptionHandler`, utilizando `@RestControllerAdvice` para centralizar o tratamento de erros e padronizar as respostas por meio do `ApiErrorDTO`.
+
+### Mapeamento de erros HTTP
+
+| Status | Situação |
+|---|---|
+| `400 Bad Request` | Regras de negócio e argumentos inválidos. |
+| `404 Not Found` | Recurso não encontrado. |
+| `409 Conflict` | Estado atual do recurso impede a operação. |
+| `500 Internal Server Error` | Falhas de persistência e erros inesperados. |
+
+As respostas de erro incluem data e hora, código HTTP, identificação do erro e mensagem descritiva.
+
+## 11. Módulo de Algoritmos
 
 O módulo de algoritmos está localizado em `src/main/java/br/com/unisa/avc_equipamentos/algoritmos/ModuloAlgoritmos.java`.
 
@@ -271,7 +380,7 @@ O construtor recebe uma lista não nula e valida se todos os equipamentos possue
 
 A ordenação modifica a lista interna do módulo, enquanto o método `getEquipamentos()` retorna uma cópia da coleção.
 
-A compilação e a demonstração do módulo foram executadas com sucesso. Os testes JUnit específicos dos algoritmos permanecem pendentes de execução e validação.
+A compilação e a demonstração do módulo foram executadas com sucesso. Os testes JUnit específicos dos algoritmos também foram implementados e executados com sucesso, totalizando 15 testes para o módulo. Na execução integrada da suíte de testes do projeto, foram obtidos 39 testes aprovados, sem falhas ou erros.
 
 ### Demonstração reproduzível
 
