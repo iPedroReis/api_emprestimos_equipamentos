@@ -13,6 +13,16 @@ O sistema tem como objetivo gerenciar empréstimos e devoluções de equipamento
 - Supabase
 - Maven
 
+## Equipe e contribuições
+
+| Integrante | Contribuições |
+|---|---|
+| Pedro Reis | Configuração da conexão JDBC, implementação do módulo de empréstimos e documentação técnica. |
+| André Roza | Implementação do módulo de equipamentos. |
+| Beatriz Pereira | Implementação do módulo de usuários e tratamento global de exceções. |
+| Fernando Oliveira | Implementação dos algoritmos de busca e ordenação. |
+| Gustavo Dornellas | Implementação dos testes automatizados e validação dos módulos. |
+
 ## Documentação
 
 A documentação técnica, incluindo a arquitetura do sistema, o diagrama UML e os endpoints de empréstimos, está disponível no README do projeto Java:
@@ -21,54 +31,58 @@ A documentação técnica, incluindo a arquitetura do sistema, o diagrama UML e 
 
 ## Executar o projeto
 
+É necessário ter Java 21 e Maven instalados.
+
 Entre na pasta da aplicação:
 
 ```bash
 cd avc-equipamentos
 ```
 
-Execute os testes com Maven:
+Configure as seguintes variáveis de ambiente antes de executar a aplicação:
+
+- `DB_URL`: endereço de conexão com o PostgreSQL.
+- `DB_USER`: usuário do banco de dados.
+- `DB_PASSWORD`: senha do banco de dados.
+
+Execute os testes automatizados:
 
 ```bash
-mvn test
+mvn clean test
 ```
 
-Configure as variáveis de ambiente `DB_URL`, `DB_USER` e `DB_PASSWORD` antes de executar a aplicação com acesso ao banco de dados.
+Inicie a aplicação:
 
-## Organização
+```bash
+mvn spring-boot:run
+```
 
-O código-fonte da aplicação está localizado na pasta `avc-equipamentos`.
+As credenciais do banco de dados devem ser configuradas no ambiente de execução, não diretamente no código-fonte.
 
----
+## Testes e validação
 
+O projeto possui testes automatizados para os módulos de conexão, aplicação, usuários, empréstimos, algoritmos e tratamento global de exceções.
 
-## Módulo de Usuários e Tratamento Global de Erros (Beatriz Pereira)
+Na validação integrada, foram executados 39 testes, todos aprovados, sem falhas, erros ou testes ignorados (`BUILD SUCCESS`).
 
-### 1. Visão Geral da Implementação (Tarefas T-11 a T-14)
+## Declaração sobre o Uso de Inteligência Artificial
 
-- **Modelos e DTOs (T-11):** Implementação do `UsuarioResponseDTO` para transferir apenas os dados necessários dos usuários (`id`, `nome`, `matricula`), preservando o encapsulamento das entidades de domínio.
-- **Acesso a Dados (T-12):** Utilização do `UsuarioDAO` para consultas diretas via JDBC e `PreparedStatement`, garantindo o encerramento correto dos recursos e a prevenção de injeção de SQL.
-- **Serviço e Endpoints REST (T-13):** Criação do `UsuarioController`, expondo os seguintes contratos:
-  - `GET /usuarios`: Lista todos os usuários cadastrados com status HTTP 200.
-  - `GET /usuarios/{id}`: Consulta detalhada de um usuário por identificador único, retornando HTTP 200 ou acionando erro HTTP 404 caso não exista.
-- **Tratamento Global de Erros (T-14):** Implementação de tratamento centralizado com `@RestControllerAdvice`, por meio da classe `GlobalExceptionHandler`, padronizando as respostas de falha no formato `ApiErrorDTO` (data e hora, código HTTP, tipo do erro e mensagem descritiva):
-  - **HTTP 404 (Not Found):** Mapeado via `RecursoNaoEncontradoException`.
-  - **HTTP 400 (Bad Request):** Mapeado via `RegraNegocioException` e `IllegalArgumentException`, para violações de regras de negócio e argumentos inválidos.
-  - **HTTP 409 (Conflict):** Mapeado via `IllegalStateException`, para situações em que o estado atual do recurso impede a operação solicitada.
-  - **HTTP 500 (Internal Server Error):** Mapeado para falhas de persistência (`SQLException`) e exceções gerais não previstas (`Exception`).
+Durante o desenvolvimento do projeto, os integrantes utilizaram ferramentas de Inteligência Artificial generativa, especificamente **ChatGPT (OpenAI)** e **Gemini (Google)**, como recursos de apoio às atividades acadêmicas e técnicas.
 
----
+### Finalidades do uso
 
-## Declaração sobre o Uso de Inteligência Artificial (Tarefa T-15)
+As ferramentas foram utilizadas como apoio em atividades como:
 
-Em conformidade com os requisitos éticos e acadêmicos da disciplina, o desenvolvimento das tarefas T-11 a T-14 contou com o auxílio de assistente de Inteligência Artificial generativa (Gemini).
+- **Desenvolvimento:** esclarecimento de dúvidas sobre Java, Spring Boot, JDBC, SQL e demais tecnologias utilizadas.
+- **Arquitetura e organização:** apoio à compreensão da arquitetura em camadas e à separação de responsabilidades.
+- **Resolução de problemas:** auxílio no diagnóstico de erros de compilação, configuração, integração e execução, incluindo inconsistências de pacotes em testes e diferenças entre ambientes Windows e Codespaces.
+- **Revisão de código:** sugestões de melhorias, identificação de possíveis problemas e discussão de boas práticas, incluindo a separação de responsabilidades entre DAO, Service, Controller e DTOs.
+- **Tratamento de exceções:** apoio à compreensão e padronização do uso de `@RestControllerAdvice` e `@ExceptionHandler`.
+- **Testes:** orientação sobre elaboração, execução e interpretação de testes automatizados.
+- **Documentação e controle de versão:** apoio à elaboração da documentação técnica e à compreensão de procedimentos de Git e commits.
 
-### Finalidade do Uso
+### Supervisão e responsabilidade dos integrantes
 
-- **Apoio Estrutural e Arquitetura:** Suporte na padronização das classes de exceção e anotações do Spring Boot (`@RestControllerAdvice`, `@ExceptionHandler`).
-- **Resolução de Problemas de Ambiente e Configuração:** Diagnóstico de inconsistências de pacotes no arquivo de testes (`ConnectionFactoryTest`), adequação de comandos entre ambientes Windows (PowerShell) e Codespaces, e orientação sobre a esteira de commits do Git.
-- **Validação de Código e Boas Práticas:** Revisão da separação de responsabilidades entre DAO (JDBC nativo), Service, Controller e DTOs, assegurando a não exposição desnecessária dos dados da entidade.
+As ferramentas de IA foram utilizadas como instrumentos auxiliares. Todas as sugestões foram analisadas criticamente, confrontadas com os requisitos do trabalho e validadas no ambiente do projeto antes de sua integração.
 
-### Supervisão Humana
-
-Todas as soluções sugeridas pela ferramenta foram inspecionadas criticamente, validadas face às regras de negócio do enunciado e testadas no ambiente do projeto antes de serem integradas à branch de trabalho.
+As decisões de implementação, a análise das sugestões, a validação do código e a integração das alterações permaneceram sob responsabilidade dos integrantes.
