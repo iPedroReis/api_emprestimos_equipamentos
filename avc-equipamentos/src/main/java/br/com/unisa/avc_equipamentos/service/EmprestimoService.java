@@ -43,4 +43,8 @@ public class EmprestimoService {
 
         emprestimoDAO.registrarDevolucao(emprestimoId);
     }
+
+    public java.util.List<Emprestimo> listarEmprestimos() throws SQLException {
+        return emprestimoDAO.listarEmprestimos();
+    }
 }

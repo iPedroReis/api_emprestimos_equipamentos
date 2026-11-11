@@ -49,4 +49,17 @@ public class EmprestimoController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<java.util.List<EmprestimoResponseDTO>> listarEmprestimos()
+            throws SQLException {
+
+        java.util.List<EmprestimoResponseDTO> resposta =
+                emprestimoService.listarEmprestimos()
+                        .stream()
+                        .map(EmprestimoResponseDTO::new)
+                        .toList();
+
+        return ResponseEntity.ok(resposta);
+    }
 }
