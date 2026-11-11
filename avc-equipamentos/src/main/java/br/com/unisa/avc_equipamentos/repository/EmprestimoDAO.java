@@ -1,5 +1,11 @@
-
 package br.com.unisa.avc_equipamentos.repository;
+
+import br.com.unisa.avc_equipamentos.model.Usuario;
+import br.com.unisa.avc_equipamentos.model.Equipamento;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import br.com.unisa.avc_equipamentos.config.ConnectionFactory;
 import br.com.unisa.avc_equipamentos.model.Emprestimo;
@@ -233,5 +239,47 @@ public class EmprestimoDAO {
                 throw erro;
             }
         }
+
+    }
+
+    public List<Emprestimo> listarEmprestimos() throws SQLException {
+
+        String sql = """
+                SELECT id, usuario_id, equipamento_id,
+                       data_registro, data_devolucao, situacao
+                FROM emprestimos
+                ORDER BY data_registro DESC, id DESC
+                """;
+
+        List<Emprestimo> emprestimos = new ArrayList<>();
+
+        try (Connection conexao = fabricaConexao.getConnection();
+             PreparedStatement comando = conexao.prepareStatement(sql);
+             ResultSet resultado = comando.executeQuery()) {
+
+            while (resultado.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setId(resultado.getLong("usuario_id"));
+
+                Equipamento equipamento = new Equipamento();
+                equipamento.setId(resultado.getLong("equipamento_id"));
+
+                Emprestimo emprestimo = new Emprestimo();
+                emprestimo.setId(resultado.getLong("id"));
+                emprestimo.setUsuario(usuario);
+                emprestimo.setEquipamento(equipamento);
+                emprestimo.setDataRegistro(
+                        resultado.getTimestamp("data_registro").toLocalDateTime());
+
+                Timestamp dataDevolucao = resultado.getTimestamp("data_devolucao");
+                emprestimo.setDataDevolucao(
+                        dataDevolucao == null ? null : dataDevolucao.toLocalDateTime());
+
+                emprestimo.setSituacao(resultado.getString("situacao"));
+                emprestimos.add(emprestimo);
+            }
+        }
+
+        return emprestimos;
     }
 }
